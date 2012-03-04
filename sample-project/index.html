@@ -1,0 +1,74 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+   "http://www.w3.org/TR/html4/strict.dtd">
+
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>arbor.js project template</title>
+	<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body>
+  <canvas id="viewport" width="800" height="600"></canvas>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
+
+  <!-- run from the original source files: -->
+  <!-- <script src="../../src/etc.js"></script>
+       <script src="../../src/kernel.js"></script>
+       <script src="../../src/graphics/colors.js"></script>
+       <script src="../../src/graphics/primitives.js"></script>
+       <script src="../../src/graphics/graphics.js"></script>
+       <script src="../../src/tween/easing.js"></script>
+       <script src="../../src/tween/tween.js"></script>
+       <script src="../../src/physics/atoms.js"></script>
+       <script src="../../src/physics/physics.js"></script>
+       <script src="../../src/physics/system.js"></script>
+       <script src="../../src/dev.js"></script> -->
+
+  <!-- run from the minified library file: -->
+  <script src="../../lib/arbor.js"></script>  
+
+  <script src="main.js"></script>
+  <script type="text/javascript">
+    $(document).ready(function() {
+        var today = new Date('March 31, 2011');
+        var slider = $('select#valueFrom, select#valueTo').selectToUISlider().next();
+
+        $.getJSON('data/sent.json', function(emails) {
+            var sent = new SentItems(
+                { start: today, end: new Date('2011') },
+                emails
+            );
+            
+            var sys = arbor.ParticleSystem();
+            sys.parameters({
+                stiffness: 1,
+                repulsion: 10,
+                gravity: true,
+                dt:0.015,
+                friction: 0.5
+            })
+            sys.renderer = Renderer("#viewport");
+            
+            var branch = sent.rangeToBranch(
+                { start: today, end: new Date(today.getTime() - 1000*60*60*24) });
+            
+            sys.graft(branch);
+
+            slider.bind('slide', function(event, ui) {
+                var min = Math.min(ui.values[0], ui.values[1]);
+                var max = Math.max(ui.values[0], ui.values[1]);
+                
+                var minCutoff = new Date(today.getTime() + (min) * -1000*60*60*24);
+                var maxCutoff = new Date(today.getTime() + (max + 1) * -1000*60*60*24);
+                var nodes = [];
+                
+                // prune away periods after the cutoff
+                sys.merge(sent.rangeToBranch({ start: minCutoff, end: maxCutoff }));
+            });
+        });
+    });
+  </script>
+
+</body>
+</html>
