@@ -27,48 +27,10 @@
 
   <!-- run from the minified library file: -->
   <script src="../../lib/arbor.js"></script>  
-
+  <script src="test.js"></script>
+  document.write("* test start**");
   <script src="main.js"></script>
-  <script type="text/javascript">
-    $(document).ready(function() {
-        var today = new Date('March 31, 2011');
-        var slider = $('select#valueFrom, select#valueTo').selectToUISlider().next();
-
-        $.getJSON('data/sent.json', function(emails) {
-            var sent = new SentItems(
-                { start: today, end: new Date('2011') },
-                emails
-            );
-            
-            var sys = arbor.ParticleSystem();
-            sys.parameters({
-                stiffness: 1,
-                repulsion: 10,
-                gravity: true,
-                dt:0.015,
-                friction: 0.5
-            })
-            sys.renderer = Renderer("#viewport");
-            
-            var branch = sent.rangeToBranch(
-                { start: today, end: new Date(today.getTime() - 1000*60*60*24) });
-            
-            sys.graft(branch);
-
-            slider.bind('slide', function(event, ui) {
-                var min = Math.min(ui.values[0], ui.values[1]);
-                var max = Math.max(ui.values[0], ui.values[1]);
-                
-                var minCutoff = new Date(today.getTime() + (min) * -1000*60*60*24);
-                var maxCutoff = new Date(today.getTime() + (max + 1) * -1000*60*60*24);
-                var nodes = [];
-                
-                // prune away periods after the cutoff
-                sys.merge(sent.rangeToBranch({ start: minCutoff, end: maxCutoff }));
-            });
-        });
-    });
   </script>
-
+  <div class="exec_js " id="test_result"></div>
 </body>
 </html>

@@ -3,9 +3,8 @@
 //
 //  A project template for using arbor.js
 //
-
 (function($){
-
+  document.write("*** start***");
   var Renderer = function(canvas){
     var canvas = $(canvas).get(0)
     var ctx = canvas.getContext("2d");
@@ -17,6 +16,7 @@
         // particleSystem は描画されるとき一度初期化されて、
         // good placeにcanvas のサイズに初期化
         // 後はredrawのために初期化される。
+
         particleSystem = system
 
         // screenの幅を変えると  
@@ -26,7 +26,7 @@
        //Nodeをドラッグできるようにイベントハンドらを初期化   
         that.initMouseHandling()
       },
-        
+
       /* 再描画   */
        redraw:function(){
         // redrawはnodeの位置が変わる度に繰り返し呼び出される
@@ -36,7 +36,7 @@
         // 自由にiterators .eachNode(.eachEdge)を使って場所を決める
 
         // 地の描画  
-        ctx.fillStyle = "green"
+        ctx.fillStyle = "#cc6633"
         ctx.fillRect(0,0, canvas.width, canvas.height)
 
         //   edgeの場所
@@ -60,8 +60,10 @@
 
           // draw a rectangle centered at pt
           var w = 10, label = node.name, measure;
+  
           ctx.fillStyle = (node.data.alone) ? "orange" : "white"
           ctx.fillRect(pt.x-w/2, pt.y-w/2, w,w) // 中心と幅
+          //ctx.arc(pt.x-w/2, pt.y-w/2, w) // 中心と幅
           measure = ctx.measureText(label);   
           ctx.fillText(label, pt.x - measure.width / 2,   pt.y + 15);
         })
@@ -69,7 +71,6 @@
       },
 
       /* マウスイベント初期化   */
-        
       initMouseHandling:function(){
         // no-nonsense drag and drop (thanks springy.js)
         var dragged = null;
@@ -86,13 +87,15 @@
             if (dragged && dragged.node !== null){
               // while we're dragging, don't let physics move the node
               dragged.node.fixed = true
+              //dragged.node.name = "touched"
+              loadfile()
             }
-
             $(canvas).bind('mousemove', handler.dragged)
             $(window).bind('mouseup', handler.dropped)
 
             return false
           },
+          
           /** drag **/  
           dragged:function(e){
             var pos = $(canvas).offset();
@@ -110,6 +113,7 @@
             if (dragged===null || dragged.node===undefined) return
             if (dragged.node !== null) dragged.node.fixed = false
             dragged.node.tempMass = 1000
+            jump(dragged.node)
             dragged = null
             $(canvas).unbind('mousemove', handler.dragged)
             $(window).unbind('mouseup', handler.dropped)
@@ -137,28 +141,13 @@
     sys.renderer = Renderer("#viewport") 
 
     // add some nodes to the graph and watch it go...
-    sys.addNode('a',{label:"a", color:"#449"})
+    sys.addNode('document',{label:"tanaka", color:"#33ff99"})
     sys.addEdge('a','b')
     sys.addEdge('a','c')
     sys.addEdge('a','d')
     sys.addEdge('a','e')
     sys.addNode('f', {alone:true, mass:.20})
-
-    // or, equivalently:
-    //
-    // sys.graft({
-    //   nodes:{
-    //     f:{alone:true, mass:.25}
-    //   }, 
-    //   edges:{
-    //     a:{ b:{},
-    //         c:{},
-    //         d:{},
-    //         e:{}
-    //     }
-    //   }
-    // })
-    
+      
   })
 
 })(this.jQuery)
