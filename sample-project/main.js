@@ -9,7 +9,7 @@
     var canvas = $(canvas).get(0)
     var ctx = canvas.getContext("2d");
     var particleSystem
-
+    
     var that = {
       /* 初期化   */
       init:function(system){
@@ -22,19 +22,16 @@
         // screenの幅を変えると  
         particleSystem.screenSize(canvas.width, canvas.height) 
         particleSystem.screenPadding(30) // leave an extra 30px of whitespace per side
-        
-       //Nodeをドラッグできるようにイベントハンドらを初期化   
+       //Nodeをドラッグできるようにイベントハンドらを初期化  
         that.initMouseHandling()
       },
 
       /* 再描画   */
        redraw:function(){
         // redrawはnodeの位置が変わる度に繰り返し呼び出される
-
         // 新しい場所はnodeにセットされた[.p]属性
         // しかし、p.x& p.y は screanでなく、particle system での座標である
         // 自由にiterators .eachNode(.eachEdge)を使って場所を決める
-
         // 地の描画  
         ctx.fillStyle = "#cc6633"
         ctx.fillRect(0,0, canvas.width, canvas.height)
