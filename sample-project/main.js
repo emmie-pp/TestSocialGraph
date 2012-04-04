@@ -35,7 +35,8 @@
         // 地の描画  
         ctx.fillStyle = "#cc6633"
         ctx.fillRect(0,0, canvas.width, canvas.height)
-
+        ctx.globalAlpha = 0.7;// 半透明
+        
         //   edgeの場所
         particleSystem.eachEdge(function(edge, pt1, pt2){
           // edge: {source:Node, target:Node, length:#, data:{}}
@@ -57,10 +58,12 @@
 
           // draw a rectangle centered at pt
           var w = 10, label = node.name, measure;
-  
-          ctx.fillStyle = (node.data.alone) ? "orange" : "white"
+          ctx.fillStyle = (node.data.alone) ? "orange" : 'rgb(155, 187, 89)'
           ctx.fillRect(pt.x-w/2, pt.y-w/2, w,w) // 中心と幅
-          //ctx.arc(pt.x-w/2, pt.y-w/2, w) // 中心と幅
+          ctx.arc(pt.x-w/2, pt.y-w/2, w, 0, Math.PI*2, true) // 中心と幅
+          //ctx.fill();
+          //ctx.stroke();
+          // ラベル付与
           measure = ctx.measureText(label);   
           ctx.fillText(label, pt.x - measure.width / 2,   pt.y + 15);
         })
@@ -71,7 +74,6 @@
       initMouseHandling:function(){
         // no-nonsense drag and drop (thanks springy.js)
         var dragged = null;
-
         // set up a handler object that will initially listen for mousedowns then
         // for moves and mouseups while dragging
         var handler = {
@@ -85,11 +87,10 @@
               // while we're dragging, don't let physics move the node
               dragged.node.fixed = true
               //dragged.node.name = "touched"
-              loadfile()
+              //loadfile()
             }
             $(canvas).bind('mousemove', handler.dragged)
             $(window).bind('mouseup', handler.dropped)
-
             return false
           },
           
@@ -110,17 +111,40 @@
             if (dragged===null || dragged.node===undefined) return
             if (dragged.node !== null) dragged.node.fixed = false
             dragged.node.tempMass = 1000
-            jump(dragged.node)
+                                         //jump(dragged.node)
             dragged = null
             $(canvas).unbind('mousemove', handler.dragged)
             $(window).unbind('mouseup', handler.dropped)
             _mouseP = null
             return false
+          },
+          /** double click**/
+          dblclick:function(e){
+            var pos = $(canvas).offset();
+            _mouseP = arbor.Point(e.pageX-pos.left, e.pageY-pos.top)
+            dblclicked= particleSystem.nearest(_mouseP);
+
+            if (dblclicked && dblclicked.distance < 20){
+              //dblclicked.node.fixed = true
+              location.href = "http://arborjs.org/reference";
+            }
+          },
+          /** mouse in**/
+          mouseovered:function(e){
+            var pos = $(canvas).offset();
+            _mouseP = arbor.Point(e.pageX-pos.left, e.pageY-pos.top)
+            mousein= particleSystem.nearest(_mouseP);
+
+            if (mousein && mousein.distance < 20){
+              //dblclicked.node.fixed = true
+              location.href = "http://arborjs.org/reference";
+            }
           }
         }
-        
         // マウスリスナーの開始
         $(canvas).mousedown(handler.clicked);
+        $(canvas).mouseover(handler.mouseovered);
+        $(canvas).dblclick(handler.dblclick);
       },
       
     }
@@ -129,21 +153,32 @@
 
   $(document).ready(function(){
    // create the system with sensible repulsion/stiffness/friction
-  // 反発(repulsion),  剛性(stiffness), 摩擦(friction)=(1000,600, 0.5)
-    var sys = arbor.ParticleSystem(1, 10, 0.5)
+    // 反発(repulsion),  剛性(stiffness), 摩擦(friction)=(1000,600, 0.5)
+    var sys = arbor.ParticleSystem(100, 80, 0.5)
     // グラフの最適位置を計算するために、重力計算を使う
     sys.parameters({gravity:true})
     // our newly created renderer will have its .init() method called shortly by sys...
     // initが呼び出される  
     sys.renderer = Renderer("#viewport") 
 
-    // add some nodes to the graph and watch it go...
-    sys.addNode('document',{label:"tanaka", color:"#33ff99"})
+   // add some nodes to the graph and watch it go...
+  sys.addNode('center',{label:'center', color:"#33ff99"})
+      sys.addNode('f', {alone:true, mass:.90})
+      
+  $.getJSON("user.json", null, function (data){
+       //var nodes = data.nodes
+     for (i in data){
+       sys.addEdge('center', data[i])
+     }
+   })
+
+    /*
+    sys.addNode('document',{label:data[], color:"#33ff99"})
     sys.addEdge('a','b')
     sys.addEdge('a','c')
     sys.addEdge('a','d')
     sys.addEdge('a','e')
-    sys.addNode('f', {alone:true, mass:.20})
+    */
       
   })
 
